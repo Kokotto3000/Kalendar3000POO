@@ -7,7 +7,7 @@ export class EventManager {
 
     // Méthode pour charger les événements à partir d'un fichier JSON
     loadEvents() {
-        return fetch('../data/events.json')
+        return fetch('../events.json')
             .then(response => response.json())
             .then(data => {
                 loadedEvents.length = 0; // Vider le tableau si nécessaire
