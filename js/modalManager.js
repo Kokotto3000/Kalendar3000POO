@@ -74,11 +74,12 @@ export class ModalManager {
         document.getElementById('googleCalendar').addEventListener('click', function() {
         //détails de l'évènement
         // Conversion de la date
-        const eventDate = new Date(event.date);
+        const eventStartDate = new Date(event.startDate.year, event.startDate.month, event.startDate.day);
+        const eventEndDate = new Date(event.endDate.year, event.endDate.month, event.endDate.day);
 
         // Format pour Google Calendar: YYYYMMDD
-        const googleStartDate = eventDate.toISOString().replace(/-|:|\.\d+/g, '').slice(0, 15); // 20240930T000000Z
-        const googleEndDate = googleStartDate;
+        const googleStartDate = eventStartDate.toISOString().replace(/-|:|\.\d+/g, '').slice(0, 15); // 20240930T000000Z
+        const googleEndDate = eventEndDate.toISOString().replace(/-|:|\.\d+/g, '').slice(0, 15); // 20240930T000000Z;
 
         const title = encodeURIComponent(event.titreComplet);
         const location = encodeURIComponent("France");
@@ -96,12 +97,13 @@ export class ModalManager {
         //OUTLOOK
         document.getElementById('outlookCalendar').addEventListener('click', function() {
             //détails de l'évènement
-            // Conversion de la date
-            const eventDate = new Date(event.date);
-
+            /// Conversion de la date A VERIFIER COMME GOOGLE
+            const eventStartDate = new Date(event.startDate);
+            const eventEndDate = new Date(event.endDate);
+    
             // Format pour Outlook Calendar: YYYY-MM-DDTHH:MM:SS
-            const outlookStartDate = eventDate.toISOString().split('.')[0]; // 2024-09-30T00:00:00
-            const outlookEndDate = outlookStartDate; // Même début et fin pour un événement d'une journée
+            const outlookStartDate = eventStartDate.toISOString().split('.')[0]; // 2024-09-30T00:00:00
+            const outlookEndDate = eventEndDate.toISOString().split('.')[0]; // Même début et fin pour un événement d'une journée
 
             const title = encodeURIComponent(event.titreComplet);
             const location = encodeURIComponent("France");
@@ -118,12 +120,13 @@ export class ModalManager {
         //APPLE
         document.getElementById('appleCalendar').addEventListener('click', function() {
 
-            // Format pour Apple Calendar (.ics): YYYYMMDDTHHMMSSZ
+            // Format pour Apple Calendar (.ics): YYYYMMDDTHHMMSSZ A VERIFIER COMME GOOGLE
             const title= event.titreComplet;
-            const date= new Date(event.date);
+            const startDate= new Date(event.startDate);
+            const endDate = new Date(event.endDate);
             // Format pour Apple Calendar (.ics): YYYYMMDDTHHMMSSZ (UTC)
-            const appleStartDate = date.toISOString().replace(/-|:|\.\d+/g, '').slice(0, 15) + 'Z';  // 20240930T000000Z
-            const appleEndDate = appleStartDate.slice(0, 8) + "T235900Z";  // Même jour, 23:59
+            const appleStartDate = startDate.toISOString().replace(/-|:|\.\d+/g, '').slice(0, 15) + 'Z';  // 20240930T000000Z
+            const appleEndDate = endDate.toISOString().replace(/-|:|\.\d+/g, '').slice(0, 15) + 'Z';  // 20240930T000000Z;  // Même jour, 23:59
             const location = "Paris, France";
             // Utilise la description nettoyée en texte brut
             const plainTextDescription = convertHtmlToPlainText(event.description).trim();

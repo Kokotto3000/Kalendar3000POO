@@ -13,7 +13,10 @@ export class EventManager {
                 loadedEvents.length = 0; // Vider le tableau si nécessaire
                 loadedEvents.push(...data.map(event => ({
                     ...event,
-                    date: new Date(event.date)
+                    //date: new Date(event.date),
+                    start: new Date(event.startDate.year, event.startDate.month, event.startDate.day),
+                    end: new Date(event.endDate.year, event.endDate.month, event.endDate.day),
+                    position: null
                 })));
             })
             .catch(error => console.error('Erreur lors du chargement des événements:', error));
@@ -22,24 +25,17 @@ export class EventManager {
     getEvents(day, month, year) {
         // Filtrer les événements qui correspondent au jour actuel et aux filtres actifs
         return loadedEvents.filter(event => {
-            const eventDate = event.date; // Chaque événement n'a plus qu'une seule date
+            //const eventDate = event.date; // Chaque événement n'a plus qu'une seule date
             const currentDay = new Date(year, month, day);
 
-            // Vérifier si la date de l'événement correspond au jour actuel
-            const isSameDay = eventDate.getFullYear() === currentDay.getFullYear() &&
-                            eventDate.getMonth() === currentDay.getMonth() &&
-                            eventDate.getDate() === currentDay.getDate();
+            // Vérifier si le jour actuel est dans la plage de dates de l'événement
+            const isInDateRange = currentDay >= event.start && currentDay <= event.end;
 
             // Vérifier si le type d'événement est dans les filtres actifs
             const isFiltered = activeFilters.length === 0 || activeFilters.some(e => event.type.includes(e));
 
-            return isSameDay && isFiltered;
+            return isInDateRange && isFiltered;
         });
 
     }
-
-    // Méthode pour mettre à jour les filtres actifs
-    /*updateActiveFilters(filters) {
-        activeFilters = filters;
-    }*/
 }

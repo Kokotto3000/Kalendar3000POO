@@ -65,7 +65,10 @@ export class Calendar {
     
             row.appendChild(dayElement);
         }
-    
+
+        // Crée un objet pour stocker les positions occupées par les événements
+        let positionMap = {};
+
         // Remplit le calendrier avec les jours du mois actuel
         for (let day = 1; day <= daysInMonth; day++) {
             const dayElement = document.createElement('div');
@@ -106,8 +109,18 @@ export class Calendar {
             eventsBlock.classList.add('eventsBlock');
             dayElement.appendChild(eventsBlock);
 
+            // Trie les événements par ordre croissant de début
+            events.sort((a, b) => a.start - b.start);
+
+            // Initialise la carte des positions pour le jour actuel
+            if (!positionMap[day]) {
+                positionMap[day] = [false, false, false, false];
+            }
+
+
+
             if (this.width > 992) {
-                this.renderDesktop(events, eventsBlock, day, month, year);
+                this.renderDesktop(events, eventsBlock, day, month, year, positionMap);
             } else if(this.width<=992 && events.length>0) {
                 this.renderMobile(events, eventsBlock, dayElement, day, month, year);
             }
@@ -149,24 +162,69 @@ export class Calendar {
         }
     }
 
-    renderDesktop(events, block, day, month, year) {
-        // Limite le nombre d'événements affichés à 3
-        const displayedEvents = events.slice(0, 2);
+    renderDesktop(events, block, day, month, year, positionMap) {
+        // Limite le nombre d'événements affichés à 3 pour les évènements journaliers
+        //const displayedEvents = events.slice(0, 2);
+        // Limite le nombre d'événements affichés à 5 pour les évènements multiples l'affichage du plus est bof...
+        const displayedEvents = events.slice(0, 4);
         
         displayedEvents.forEach(event => {
+            let position = event.position; // Position de l'événement
+
+            // Vérifie si l'événement a déjà une position attribuée et valide
+            if (position !== null && positionMap[day][position] === false) {
+                // Si la position est libre dans la positionMap, on conserve l'ancienne position
+                positionMap[day][position] = true;
+            }
+
+            // Si l'événement n'a pas encore de position attribuée
+            if (position === null) {
+                // Trouve la première position libre
+                position = positionMap[day].findIndex(pos => pos === false);
+
+                // Attribue la position à l'événement
+                event.position = position;
+            }
+
+            // Marque la position comme occupée
+            positionMap[day][position] = true;
+
+
+
+
+
             // Crée un élément pour l'événement
             const eventElement = document.createElement('div');
-            eventElement.textContent = event.name;
+
+            // Afficher le nom seulement pour le premier jour de l'événement
+            /*if (day === event.startDate.day && month === event.startDate.month && year === event.startDate.year) {
+                eventElement.textContent = event.name;
+            }*/
+            eventElement.textContent= event.name;
             event.type.forEach(type => eventElement.classList.add('event', type));
-            eventElement.classList.add('event');
+            
+            eventElement.classList.add(`position-${position + 1}`);
+
+            // Détecte si l'événement est d'une journée ou multi-jour
+            if (new Date(event.start.toISOString().substring(0, 10)).getTime() == new Date(event.end.toISOString().substring(0, 10)).getTime() &&
+            event.start.getMonth() === event.end.getMonth() &&
+            event.start.getFullYear() === event.end.getFullYear()) {
+            eventElement.classList.add('single-day');
+            } else if (day === event.startDate.day && month === event.startDate.month && year === event.startDate.year) {
+                eventElement.classList.add('multi-day', 'start');
+            } else if (day === event.endDate.day && month === event.endDate.month && year === event.endDate.year) {
+                eventElement.classList.add('multi-day', 'end');
+            } else {
+                eventElement.classList.add('multi-day', 'middle');
+            }
 
             this.modalManager.addingModal(event, eventElement);
 
             block.appendChild(eventElement);
         });
 
-        // Ajoute un bouton "+" si plus de 2 événements
-        if (events.length > 2) {
+        // Ajoute un bouton "+" si plus de 2 événements 4 en multiple
+        if (events.length > 4) {
             const moreEventsButton = document.createElement('div');
             moreEventsButton.classList.add('more-events');
             moreEventsButton.innerHTML = '<i class="fa-solid fa-plus"></i>';

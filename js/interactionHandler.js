@@ -33,26 +33,26 @@ export class InteractionHandler {
     }
 
     shareOnFacebook() {
-        console.log("click");
+
         const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${pageUrl}`;
         window.open(facebookUrl, '_blank');
     }
 
     shareOnTwitter() {
-        console.log("click");
+
         const tweetText = "Découvrez ce Kalendrier incroyable !";
         const twitterUrl = `https://twitter.com/intent/tweet?url=${pageUrl}&text=${encodeURIComponent(tweetText)}&via=Kokotto3000`;
         window.open(twitterUrl, '_blank');
     }
 
     shareOnLinkedin() {
-        console.log("click");
+
         const linkedInUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${pageUrl}`;
         window.open(linkedInUrl, '_blank');
     }
 
     copyUrl() {
-        console.log("click");
+
         const copyText = document.getElementById("input");
         copyText.value = calendarUrl;
         copyText.select();
@@ -62,7 +62,7 @@ export class InteractionHandler {
     dropdownMonthUpdate(linkItem) {
         linkItem.addEventListener("click", (e)=> {
             e.preventDefault();
-            console.log(linkItem)
+
             currentDate.setMonth(parseInt(linkItem.dataset.month));
             currentDate.setFullYear(parseInt(linkItem.dataset.year));
             //EN ATTENTE DE LA METHODE !!! avec la classe Calendar...
